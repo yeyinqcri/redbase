@@ -23,8 +23,7 @@
 //       contents of a page.  Remember to call PF_FileHandle::UnpinPage()
 //       to unpin the page when you are finished accessing it.
 //
-PF_PageHandle::PF_PageHandle()
-{
+PF_PageHandle::PF_PageHandle() {
   pageNum = INVALID_PAGE;
   pPageData = NULL;
 }
@@ -36,8 +35,7 @@ PF_PageHandle::PF_PageHandle()
 //       If the page handle object refers to a pinned page, the page will
 //       NOT be unpinned.
 //
-PF_PageHandle::~PF_PageHandle()
-{
+PF_PageHandle::~PF_PageHandle() {
   // Don't need to do anything
 }
 
@@ -49,8 +47,7 @@ PF_PageHandle::~PF_PageHandle()
 //       the page will NOT be pinned again.
 // In:   pageHandle - page handle object from which to construct this object
 //
-PF_PageHandle::PF_PageHandle(const PF_PageHandle &pageHandle)
-{
+PF_PageHandle::PF_PageHandle(const PF_PageHandle &pageHandle) {
   // Just copy the local variables since there is no local memory
   // allocation involved
   this->pageNum = pageHandle.pageNum;
@@ -66,8 +63,7 @@ PF_PageHandle::PF_PageHandle(const PF_PageHandle &pageHandle)
 // In:   pageHandle - page handle object to set this object equal to
 // Ret:  reference to *this
 //
-PF_PageHandle& PF_PageHandle::operator= (const PF_PageHandle &pageHandle)
-{
+PF_PageHandle& PF_PageHandle::operator=(const PF_PageHandle &pageHandle) {
   // Check for self-assignment
   if (this != &pageHandle) {
 
@@ -89,8 +85,7 @@ PF_PageHandle& PF_PageHandle::operator= (const PF_PageHandle &pageHandle)
 // Out:  pData - Set pData to point to the page contents
 // Ret:  PF return code
 //
-RC PF_PageHandle::GetData(char *&pData) const
-{
+RC PF_PageHandle::GetData(char *&pData) const {
   // Page must refer to a pinned page
   if (pPageData == NULL)
     return (PF_PAGEUNPINNED);
@@ -110,8 +105,7 @@ RC PF_PageHandle::GetData(char *&pData) const
 // Out:  pageNum - contains the page number
 // Ret:  PF return code
 //
-RC PF_PageHandle::GetPageNum(PageNum &_pageNum) const
-{
+RC PF_PageHandle::GetPageNum(PageNum &_pageNum) const {
 
   // Page must refer to a pinned page
   if (pPageData == NULL)

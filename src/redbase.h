@@ -30,6 +30,7 @@ typedef int RC;
 #define START_PF_ERR  (-1)
 #define END_PF_ERR    (-100)
 #define START_RM_ERR  (-101)
+#define RM_PAGE_FILE_SIZE_EXCEED (START_RM_ERR - 1)
 #define END_RM_ERR    (-200)
 #define START_IX_ERR  (-201)
 #define END_IX_ERR    (-300)
@@ -41,6 +42,7 @@ typedef int RC;
 #define START_PF_WARN  1
 #define END_PF_WARN    100
 #define START_RM_WARN  101
+#define RM_PAGE_FILE_HANDLE_CLOSED_WARN (START_RM_WARN + 1)
 #define END_RM_WARN    200
 #define START_IX_WARN  201
 #define END_IX_WARN    300

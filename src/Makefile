@@ -11,7 +11,7 @@
 CC             = g++
 BUILD_DIR      = ../build/
 LIB_DIR        = ../lib/
-INC_DIRS       = -I.
+INC_DIRS       = -I. -I/usr/local/Cellar/jsoncpp/0.10.5/include
 AR             = ar -qc
 RANLIB         = ranlib
 YACC           = bison -dy
@@ -36,7 +36,7 @@ STATS_OPTION   = -DPF_STATS
 PF_SOURCES     = pf_buffermgr.cc pf_error.cc pf_filehandle.cc \
                  pf_pagehandle.cc pf_hashtable.cc pf_manager.cc \
                  pf_statistics.cc statistics.cc
-RM_SOURCES     = statistics.cc
+RM_SOURCES     = rm_header.cc statistics.cc
 IX_SOURCES     = statistics.cc
 SM_SOURCES     = statistics.cc #sm_stub.cc printer.cc
 QL_SOURCES     = statistics.cc #ql_manager_stub.cc
@@ -69,7 +69,7 @@ UTILS          = $(UTILS_SOURCES:.cc=)
 TESTS          = $(TESTER_SOURCES:.cc=)
 EXECUTABLES    = $(UTILS) $(TESTS)
 
-LIBS           = -lparser -lql -lsm -lix -lrm -lpf
+LIBS           = -lparser -lql -lsm -lix -lrm -lpf -ljson
 
 #
 # Build targets

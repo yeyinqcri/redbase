@@ -15,13 +15,12 @@
 //       and delete of hash table entries.
 // In:   numBuckets - number of hash table buckets
 //
-PF_HashTable::PF_HashTable(int _numBuckets)
-{
+PF_HashTable::PF_HashTable(int _numBuckets) {
   // Initialize numBuckets local variable from parameter
   this->numBuckets = _numBuckets;
 
   // Allocate memory for hash table
-  hashTable = new PF_HashEntry* [numBuckets];
+  hashTable = new PF_HashEntry*[numBuckets];
 
   // Initialize all buckets to empty
   for (int i = 0; i < numBuckets; i++)
@@ -33,8 +32,7 @@ PF_HashTable::PF_HashTable(int _numBuckets)
 //
 // Desc: Destructor
 //
-PF_HashTable::~PF_HashTable()
-{
+PF_HashTable::~PF_HashTable() {
   // Clear out all buckets
   for (int i = 0; i < numBuckets; i++) {
 
@@ -60,18 +58,15 @@ PF_HashTable::~PF_HashTable()
 // Out:  slot - set to slot associated with fd and pageNum
 // Ret:  PF return code
 //
-RC PF_HashTable::Find(int fd, PageNum pageNum, int &slot)
-{
+RC PF_HashTable::Find(int fd, PageNum pageNum, int &slot) {
   // Get which bucket it should be in
   int bucket = Hash(fd, pageNum);
-
-  if (bucket<0)
-     return (PF_HASHNOTFOUND);
+  if (bucket < 0)
+    return (PF_HASHNOTFOUND);
 
   // Go through the linked list of this bucket
-  for (PF_HashEntry *entry = hashTable[bucket];
-       entry != NULL;
-       entry = entry->next) {
+  for (PF_HashEntry *entry = hashTable[bucket]; entry != NULL;
+      entry = entry->next) {
     if (entry->fd == fd && entry->pageNum == pageNum) {
 
       // Found it
@@ -93,16 +88,13 @@ RC PF_HashTable::Find(int fd, PageNum pageNum, int &slot)
 //       slot - slot associated with fd and pageNum
 // Ret:  PF return code
 //
-RC PF_HashTable::Insert(int fd, PageNum pageNum, int slot)
-{
+RC PF_HashTable::Insert(int fd, PageNum pageNum, int slot) {
   // Get which bucket it should be in
   int bucket = Hash(fd, pageNum);
 
   // Check entry doesn't already exist in the bucket
   PF_HashEntry *entry;
-  for (entry = hashTable[bucket];
-       entry != NULL;
-       entry = entry->next) {
+  for (entry = hashTable[bucket]; entry != NULL; entry = entry->next) {
     if (entry->fd == fd && entry->pageNum == pageNum)
       return (PF_HASHPAGEEXIST);
   }
@@ -133,16 +125,13 @@ RC PF_HashTable::Insert(int fd, PageNum pageNum, int slot)
 //       pagenum - page number
 // Ret:  PF return code
 //
-RC PF_HashTable::Delete(int fd, PageNum pageNum)
-{
+RC PF_HashTable::Delete(int fd, PageNum pageNum) {
   // Get which bucket it should be in
   int bucket = Hash(fd, pageNum);
 
   // Find the entry is in this bucket
   PF_HashEntry *entry;
-  for (entry = hashTable[bucket];
-       entry != NULL;
-       entry = entry->next) {
+  for (entry = hashTable[bucket]; entry != NULL; entry = entry->next) {
     if (entry->fd == fd && entry->pageNum == pageNum)
       break;
   }
@@ -163,5 +152,3 @@ RC PF_HashTable::Delete(int fd, PageNum pageNum)
   // Return ook
   return (0);
 }
-
-
