@@ -11,8 +11,8 @@
 CC             = g++
 BUILD_DIR      = ../build/
 LIB_DIR        = ../lib/
-JSON_LIB_DIR   = /usr/local/Cellar/jsoncpp/0.10.5/lib/
-INC_DIRS       = -I. -I/usr/local/Cellar/jsoncpp/0.10.5/include
+JSON_LIB_DIR   = /usr/local/Cellar/jsoncpp/0.10.5/
+INC_DIRS       = -I. -I$(JSON_LIB_DIR)/include
 AR             = ar -qc
 RANLIB         = ranlib
 YACC           = bison -dy
@@ -144,5 +144,5 @@ $(OBJECTS): %.o:
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(EXECUTABLES): %: $(BUILD_DIR)%.o $(LIBRARIES)
-	$(CC) $(CFLAGS) $< -o $@ -L$(LIB_DIR) -L$(JSON_LIB_DIR) $(LIBS)
+	$(CC) $(CFLAGS) $< -o $@ -L$(LIB_DIR) -L$(JSON_LIB_DIR)/lib $(LIBS)
 
