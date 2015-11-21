@@ -45,6 +45,7 @@ RM_PageHeader RM_PageHeader::BufToPageHeader(const char* array) {
   for (int i = 0; i < header.record_num; i++) {
     header.bit_array.push_back(root["record"][i].asBool());
   }
+  return header;
 }
 
 bool RM_PageHeader::ToBuf(char* buf, const int length) {
