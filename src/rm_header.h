@@ -15,6 +15,8 @@
 #include <vector>
 using namespace std;
 
+const PageNum INVALID_PAGE = -1;
+
 //
 // Metadata of the records in the file. Must be stored in the first page of the file.
 //
@@ -36,18 +38,21 @@ class RM_PageHeader {
  public:
   RM_PageHeader(unsigned int record_num);
   vector<bool> bit_array;
+  PageNum next_free;
   // This function is used to deserialize FileHeader from string to object.
   static RM_PageHeader BufToPageHeader(const char* header_content);
   // This function is used to serialize the object.
   bool ToBuf(char* ret_value, const int length);
   // Gets the index of first free record.
-  int GetFirstFree();
+  int GetFirstFreeSlot();
   // Set the specific index as occupied.
   void SetBusy(int index);
   // Check if there is any free slot.
   bool IsAllFull();
   // Get size of bits.
   int GetTotalRecordNum();
+  // Gets next free page.
+  PageNum GetNextFreePage();
 };
 
 #endif /* RM_HEADER_H_ */

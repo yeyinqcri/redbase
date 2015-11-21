@@ -31,11 +31,24 @@ void TestRMPageHeader_Serialization() {
 }
 
 void TestRMFileHeader_DeSerialization() {
-
+  char str[] =
+      "{\"firstfree\":1,\"number_records_per_page\":10,\"recordsize\":100}";
+  RM_FileHeader header = RM_FileHeader::BufToFileHeader(str);
+  cout << "header.firstfree:" << header.first_free << endl;
+  cout << "header.number_records_per_page:" << header.number_records_per_page
+       << endl;
+  cout << "header.recordsize:" << header.record_size << endl;
 }
 
 void TestRMPageHeader_DeSerialization() {
-
+  char str[] = "{\"bit_array\":[1,0,0,0,0,1,0,0,0,0],\"next_free\":2}";
+  RM_PageHeader header = RM_PageHeader::BufToPageHeader(str);
+  cout << "header.bit_array" << endl;
+  for (int i = 0; i < header.bit_array.size(); i++) {
+    cout << header.bit_array[i] << ",";
+  }
+  cout << endl;
+  cout << "header.next_free" << header.next_free << endl;
 }
 
 int main() {

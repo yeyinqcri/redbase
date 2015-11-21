@@ -12,7 +12,7 @@ RM_FileHeader RM_FileHeader::BufToFileHeader(const char* array) {
   if (!is_success) {
     return header;
   }
-  header.first_free = root["firstfree"].asInt();
+  header.first_free = root["firstfree"].asInt64();
   header.number_records_per_page = root["number_records_per_page"].asInt();
   header.record_size = root["recordsize"].asInt();
   return header;
@@ -37,6 +37,7 @@ RM_PageHeader::RM_PageHeader(unsigned int record_num) {
   for (int i = 0; i < record_num; i++) {
     bit_array.push_back(false);
   }
+  this->next_free = INVALID_PAGE;
 }
 
 RM_PageHeader RM_PageHeader::BufToPageHeader(const char* array) {
@@ -48,11 +49,12 @@ RM_PageHeader RM_PageHeader::BufToPageHeader(const char* array) {
   if (!is_success) {
     return RM_PageHeader(0);
   }
-  int total_size = root["record"].size();
+  int total_size = root["bit_array"].size();
   RM_PageHeader header(total_size);
   for (int i = 0; i < total_size; i++) {
-    header.bit_array.push_back(root["record"][i].asBool());
+    header.bit_array.push_back(root["bit_array"][i].asBool());
   }
+  header.next_free = root["next_free"].asInt64();
   return header;
 }
 
@@ -60,9 +62,10 @@ bool RM_PageHeader::ToBuf(char* buf, const int length) {
   Json::Value obj;
   Json::Value arrayObj;
   for (int i = 0; i < bit_array.size(); i++) {
-    arrayObj.append(Json::Value(this->bit_array[i]));
+    arrayObj.append(Json::Value(static_cast<int>(this->bit_array[i])));
   }
   obj["bit_array"] = arrayObj;
+  obj["next_free"] = static_cast<long long int>(this->next_free);
   Json::FastWriter writer;
   std::string str = writer.write(obj);
   if (str.length() >= length) {
@@ -72,7 +75,7 @@ bool RM_PageHeader::ToBuf(char* buf, const int length) {
   return true;
 }
 
-int RM_PageHeader::GetFirstFree() {
+int RM_PageHeader::GetFirstFreeSlot() {
   for (int i = 0; i < bit_array.size(); i++) {
     if (bit_array[i] == false) {
       return i;
