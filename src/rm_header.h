@@ -13,6 +13,7 @@
 
 #include <string>
 using namespace std;
+
 //
 // Metadata of the records in the file. Must be stored in the first page of the file.
 //
@@ -24,15 +25,20 @@ class RM_FileHeader {
   // This function is used to deserialize FileHeader from string to object.
   static RM_FileHeader BufToFileHeader(const char* array);
   // This function is used to serialize the object.
-  void ToBuf(char* ret_value);
+  bool ToBuf(char* ret_value, const int length);
 };
 
+//
+// Metadata of the records in the page, Must be stored in the first lines of each page.
+//
 class RM_PageHeader {
  public:
-  char* bit_array;
+  vector<bool> bit_array;
   int record_num;
-  RM_PageHeader(const char* header_content);
-  void ToBuf(char* ret_value);
+  // This function is used to deserialize FileHeader from string to object.
+  static RM_PageHeader BufToPageHeader(const char* header_content);
+  // This function is used to serialize the object.
+  bool ToBuf(char* ret_value, const int length);
 };
 
 #endif /* RM_HEADER_H_ */

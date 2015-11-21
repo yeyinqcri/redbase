@@ -18,12 +18,48 @@ RM_FileHeader RM_FileHeader::BufToFileHeader(const char* array) {
   return header;
 }
 
-void RM_FileHeader::ToBuf(char* buf) {
+bool RM_FileHeader::ToBuf(char* buf, const int length) {
   Json::Value obj;
   obj["firstfree"] = this->first_free;
   obj["recordsize"] = this->record_size;
   obj["number_records_per_page"] = this->number_records_per_page;
-  Json::StyledWriter writer;
+  Json::Writer writer;
   std::string str = writer.write(obj);
-  memcpy(buf, str.c_str(), str.length() + 1);
+  if (str.length() >= length) {
+    return false;
+  }
+  memcpy(buf, str.c_str(), str.length());
+  return true;
+}
+
+RM_PageHeader RM_PageHeader::BufToPageHeader(const char* array) {
+  Json::Value root;
+  Json::Reader reader;
+  RM_PageHeader header;
+  string str(array);
+  bool is_success = reader.parse(str, root, false);
+  if (!is_success) {
+    return header;
+  }
+  header.record_num = root["record_num"].asInt();
+  for (int i = 0; i < header.record_num; i++) {
+    header.bit_array.push_back(root["record"][i].asBool());
+  }
+}
+
+bool RM_PageHeader::ToBuf(char* buf, const int length) {
+  Json::Value obj;
+  Json::Value arrayObj;
+  obj["record_num"] = this->record_num;
+  for (int i = 0; i < this->record_num; i++) {
+    arrayObj.append(this->bit_array[i]);
+  }
+  obj["bit_array"] = arrayObj;
+  Json::Writer writer;
+  std::string str = writer.write(obj);
+  if (str.length() >= length) {
+    return false;
+  }
+  memcpy(buf, str.c_str(), str.length());
+  return true;
 }
