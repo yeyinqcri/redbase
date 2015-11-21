@@ -11,6 +11,7 @@
 CC             = g++
 BUILD_DIR      = ../build/
 LIB_DIR        = ../lib/
+JSON_LIB_DIR   = /usr/local/Cellar/jsoncpp/0.10.5/lib/
 INC_DIRS       = -I. -I/usr/local/Cellar/jsoncpp/0.10.5/include
 AR             = ar -qc
 RANLIB         = ranlib
@@ -23,7 +24,7 @@ LEX            = flex
 # -O1 - Basic optimization
 # -Wall - All warnings
 # -DDEBUG_PF - This turns on the LOG file for lots of BufferMgr info
-CFLAGS         = -m32 -g -O1 -Wall $(STATS_OPTION) $(INC_DIRS)
+CFLAGS         = -g -O1 -Wall $(STATS_OPTION) $(INC_DIRS)
 
 # The STATS_OPTION can be set to -DPF_STATS or to nothing to turn on and
 # off buffer manager statistics.  The student should not modify this
@@ -42,7 +43,7 @@ SM_SOURCES     = statistics.cc #sm_stub.cc printer.cc
 QL_SOURCES     = statistics.cc #ql_manager_stub.cc
 UTILS_SOURCES  = #dbcreate.cc dbdestroy.cc redbase.cc
 PARSER_SOURCES = statistics.cc #scan.c parse.c nodes.c interp.c
-TESTER_SOURCES = pf_test1.cc pf_test2.cc pf_test3.cc #rm_test.cc ix_test.cc parser_test.cc
+TESTER_SOURCES = pf_test1.cc pf_test2.cc pf_test3.cc rm_test1.cc #rm_test.cc ix_test.cc parser_test.cc
 
 PF_OBJECTS     = $(addprefix $(BUILD_DIR), $(PF_SOURCES:.cc=.o))
 RM_OBJECTS     = $(addprefix $(BUILD_DIR), $(RM_SOURCES:.cc=.o))
@@ -69,7 +70,7 @@ UTILS          = $(UTILS_SOURCES:.cc=)
 TESTS          = $(TESTER_SOURCES:.cc=)
 EXECUTABLES    = $(UTILS) $(TESTS)
 
-LIBS           = -lparser -lql -lsm -lix -lrm -lpf -ljson
+LIBS           = -lparser -lql -lsm -lix -lrm -lpf -ljsoncpp
 
 #
 # Build targets
@@ -143,5 +144,5 @@ $(OBJECTS): %.o:
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(EXECUTABLES): %: $(BUILD_DIR)%.o $(LIBRARIES)
-	$(CC) $(CFLAGS) $< -o $@ -L$(LIB_DIR) $(LIBS)
+	$(CC) $(CFLAGS) $< -o $@ -L$(LIB_DIR) -L$(JSON_LIB_DIR) $(LIBS)
 

@@ -20,10 +20,10 @@ RM_FileHeader RM_FileHeader::BufToFileHeader(const char* array) {
 
 bool RM_FileHeader::ToBuf(char* buf, const int length) {
   Json::Value obj;
-  obj["firstfree"] = this->first_free;
+  obj["firstfree"] = static_cast<long long int>(this->first_free);
   obj["recordsize"] = this->record_size;
   obj["number_records_per_page"] = this->number_records_per_page;
-  Json::Writer writer;
+  Json::FastWriter writer;
   std::string str = writer.write(obj);
   if (str.length() >= length) {
     return false;
@@ -32,17 +32,25 @@ bool RM_FileHeader::ToBuf(char* buf, const int length) {
   return true;
 }
 
+RM_PageHeader::RM_PageHeader(unsigned int record_num) {
+  this->bit_array.clear();
+  for (int i = 0; i < record_num; i++) {
+    bit_array.push_back(false);
+  }
+}
+
 RM_PageHeader RM_PageHeader::BufToPageHeader(const char* array) {
   Json::Value root;
   Json::Reader reader;
-  RM_PageHeader header;
+
   string str(array);
   bool is_success = reader.parse(str, root, false);
   if (!is_success) {
-    return header;
+    return RM_PageHeader(0);
   }
-  header.record_num = root["record_num"].asInt();
-  for (int i = 0; i < header.record_num; i++) {
+  int total_size = root["record"].size();
+  RM_PageHeader header(total_size);
+  for (int i = 0; i < total_size; i++) {
     header.bit_array.push_back(root["record"][i].asBool());
   }
   return header;
@@ -51,16 +59,41 @@ RM_PageHeader RM_PageHeader::BufToPageHeader(const char* array) {
 bool RM_PageHeader::ToBuf(char* buf, const int length) {
   Json::Value obj;
   Json::Value arrayObj;
-  obj["record_num"] = this->record_num;
-  for (int i = 0; i < this->record_num; i++) {
-    arrayObj.append(this->bit_array[i]);
+  for (int i = 0; i < bit_array.size(); i++) {
+    arrayObj.append(Json::Value(this->bit_array[i]));
   }
   obj["bit_array"] = arrayObj;
-  Json::Writer writer;
+  Json::FastWriter writer;
   std::string str = writer.write(obj);
   if (str.length() >= length) {
     return false;
   }
   memcpy(buf, str.c_str(), str.length());
   return true;
+}
+
+int RM_PageHeader::GetFirstFree() {
+  for (int i = 0; i < bit_array.size(); i++) {
+    if (bit_array[i] == false) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+void RM_PageHeader::SetBusy(int index) {
+  bit_array[index] = true;
+}
+
+bool RM_PageHeader::IsAllFull() {
+  for (int i = 0; i < this->bit_array.size(); i++) {
+    if (bit_array[i] == false) {
+      return false;
+    }
+  }
+  return true;
+}
+
+int RM_PageHeader::GetTotalRecordNum() {
+  return bit_array.size();
 }

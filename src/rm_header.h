@@ -12,6 +12,7 @@
 #include "linkedlist.h"
 
 #include <string>
+#include <vector>
 using namespace std;
 
 //
@@ -33,12 +34,20 @@ class RM_FileHeader {
 //
 class RM_PageHeader {
  public:
+  RM_PageHeader(unsigned int record_num);
   vector<bool> bit_array;
-  int record_num;
   // This function is used to deserialize FileHeader from string to object.
   static RM_PageHeader BufToPageHeader(const char* header_content);
   // This function is used to serialize the object.
   bool ToBuf(char* ret_value, const int length);
+  // Gets the index of first free record.
+  int GetFirstFree();
+  // Set the specific index as occupied.
+  void SetBusy(int index);
+  // Check if there is any free slot.
+  bool IsAllFull();
+  // Get size of bits.
+  int GetTotalRecordNum();
 };
 
 #endif /* RM_HEADER_H_ */
