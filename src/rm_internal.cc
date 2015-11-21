@@ -50,9 +50,3 @@ RC RM_Manager::CloseFile(RM_FileHandle &fileHandle) {
   }
   return END_RM_ERR;
 }
-
-RM_FileHeader RM_FileHeader::DeserializeFromChars(const char* page_content) {
-  RM_FileHeader header;
-
-}
-

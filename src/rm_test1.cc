@@ -1,8 +1,10 @@
 /*
+ * TODO (yye@) migrate these test cases to gtest in the future.
  * rm_test1.cc
  *
  *  Created on: 2015年11月21日
  *      Author: yye
+ *
  */
 #include "rm_header.h"
 

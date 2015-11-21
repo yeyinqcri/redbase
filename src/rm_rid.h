@@ -22,6 +22,13 @@ typedef long PageNum;
 //
 typedef int SlotNum;
 
+const PageNum kInvalidPageNum = -1;
+
+const SlotNum kInvalidSlotNum = -1;
+
+#define RM_INVALIDPAGE      (START_RM_ERR - 1) //  page number is invalid
+#define RM_INVALIDSLOT      (START_RM_ERR - 2) //  slot number is invalid
+
 //
 // RID: Record id interface
 //
@@ -35,6 +42,8 @@ class RID {
   RC GetSlotNum(SlotNum &slotNum) const;         // Return slot number
 
  private:
+  PageNum page_num_;
+  SlotNum slot_num_;
 };
 
 #endif

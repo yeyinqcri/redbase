@@ -37,7 +37,7 @@ RM_PageHeader::RM_PageHeader(unsigned int record_num) {
   for (int i = 0; i < record_num; i++) {
     bit_array.push_back(false);
   }
-  this->next_free = INVALID_PAGE;
+  this->next_free = kInvalidPageNum;
 }
 
 RM_PageHeader RM_PageHeader::BufToPageHeader(const char* array) {

@@ -15,8 +15,6 @@
 #include <vector>
 using namespace std;
 
-const PageNum INVALID_PAGE = -1;
-
 //
 // Metadata of the records in the file. Must be stored in the first page of the file.
 //
