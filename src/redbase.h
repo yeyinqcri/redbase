@@ -41,7 +41,6 @@ typedef int RC;
 #define START_PF_WARN  1
 #define END_PF_WARN    100
 #define START_RM_WARN  101
-#define RM_PAGE_FILE_HANDLE_CLOSED_WARN (START_RM_WARN + 1)
 #define END_RM_WARN    200
 #define START_IX_WARN  201
 #define END_IX_WARN    300

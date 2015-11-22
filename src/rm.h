@@ -22,6 +22,8 @@
 #include "rm_rid.h"
 #include "pf.h"
 
+#define RM_PAGE_FILE_HANDLE_CLOSED_WARN (START_RM_WARN + 1)
+#define RM_PAGE_FILE_SIZE_EXCEED (START_RM_WARN + 2)
 //
 // RM_Record: RM Record interface
 //
@@ -57,13 +59,13 @@ class RM_FileHandle {
   // Forces a page (along with any contents stored in this class)
   // from the buffer pool to disk.  Default value forces all pages.
   RC ForcePages(PageNum pageNum = ALL_PAGES);
-  void SetPFFileHandle(const PF_FileHandle& handle);
+  void SetPFFileHandle(PF_FileHandle& handle);
   bool GetHandleSet();
   RC GetPFHandle(PF_FileHandle& handle);
  private:
   bool handle_set;
   int record_num_per_page;
-  PF_FileHandle handle_;
+  PF_FileHandle* handle_;
 };
 
 //
