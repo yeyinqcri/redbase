@@ -5,6 +5,22 @@ RID::RID() {
   this->slot_num_ = kInvalidSlotNum;
 }
 
+RID::RID(const RID& rid) {
+  this->page_num_ = rid.page_num_;
+  this->slot_num_ = rid.slot_num_;
+}
+
+// Override = operator.
+RID& RID::operator=(const RID &rid) {
+  if (this != &rid) {
+    // Just copy the members since there is no memory allocation involved
+    this->page_num_ = rid.page_num_;
+    this->slot_num_= rid.slot_num_;
+  }
+  // Return a reference to this
+  return (*this);
+}
+
 RID::RID(PageNum pageNum, SlotNum slotNum) {
   this->page_num_ = pageNum;
   this->slot_num_ = slotNum;

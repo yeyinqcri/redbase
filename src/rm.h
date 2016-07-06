@@ -24,12 +24,17 @@
 
 #define RM_PAGE_FILE_HANDLE_CLOSED_WARN (START_RM_WARN + 1)
 #define RM_PAGE_FILE_SIZE_EXCEED (START_RM_WARN + 2)
+
+#define RM_FAILED_CLOSE_FILE (START_RM_ERR - 1)
+
+const int RM_HEADER_SIZE = 1024;
+
 //
 // RM_Record: RM Record interface
 //
 class RM_Record {
  public:
-  RM_Record();
+  RM_Record(const char* data, int length, const RID rid);
   ~RM_Record();
 
   // Return the data corresponding to the record.  Sets *pData to the
@@ -38,6 +43,10 @@ class RM_Record {
 
   // Return the RID associated with the record
   RC GetRid(RID &rid) const;
+ private:
+  char* data_;
+  int length;
+  RID rid;
 };
 
 //
@@ -65,7 +74,7 @@ class RM_FileHandle {
  private:
   bool handle_set;
   int record_num_per_page;
-  PF_FileHandle* handle_;
+  PF_FileHandle handle_;
 };
 
 //
@@ -98,6 +107,32 @@ class RM_Manager {
   RC CloseFile(RM_FileHandle &fileHandle);
  private:
   PF_Manager* pf_manager_;
+};
+
+class Bitmap {
+ public:
+  Bitmap(int numBits);
+  Bitmap(const char* buf, int numBits);
+  ~Bitmap();
+
+  int getSize();
+  bool test(int bitNumber);
+  void set(int bitNumber, bool value);
+ private:
+  int size;
+  char* bitArray;
+};
+
+class RM_PageHdr {
+ public:
+  RM_PageHdr(int numSlots);
+  ~RM_PageHdr();
+
+  int nextFree;
+  Bitmap* availableSlotMap;
+  int numSlots;
+  int numFreeSlots;
+
 };
 
 //

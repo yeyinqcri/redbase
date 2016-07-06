@@ -40,7 +40,10 @@ class RID {
 
   RC GetPageNum(PageNum &pageNum) const;         // Return page number
   RC GetSlotNum(SlotNum &slotNum) const;         // Return slot number
-
+  // Copy constructor of RID.
+  RID(const RID& rid);
+  // Override = operator.
+  RID& operator=(const RID &rid);
  private:
   PageNum page_num_;
   SlotNum slot_num_;

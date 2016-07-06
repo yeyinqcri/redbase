@@ -7,6 +7,8 @@
 
 // Please DO NOT include any other files in this file.
 
+#define CHECK(x) (__builtin_expect(!(x), 0))
+
 //
 // Globally-useful defines
 //

@@ -1,19 +1,70 @@
 #include "rm.h"
+#include "rm_error.h"
+#include <cstring>
 
-// Following is the implementation of RM_Record
-// TODO (yye@) add more logic for the construction
-RM_Record::RM_Record() {
+using namespace std;
 
+Bitmap::Bitmap(int numBits) {
+  CHECK(numBits > 0);
+  size = numBits;
+  bitArray = new char[size/sizeof(char)+1];
+  memset(bitArray, 0, sizeof(char) * (size/sizeof(char)+1));
+}
+
+Bitmap::~Bitmap() {
+  delete[] bitArray;
+}
+
+bool Bitmap::test(int bitNumber) {
+  return ( (bitArray[bitNumber/sizeof(char)] & (1 << (bitNumber%sizeof(char)) )) != 0 );
+}
+
+void Bitmap::set(int bitNumber, bool value) {
+  if (value) {
+    bitArray[bitNumber/sizeof(char)] |= 1 << (bitNumber%sizeof(char));
+  } else {
+    bitArray[bitNumber/sizeof(char)] &= ~(1 << (bitNumber%sizeof(char)));
+  }
+}
+
+int Bitmap::getSize() {
+  return size;
+}
+
+RM_PageHdr::RM_PageHdr(int numBits) {
+  numSlots = numBits;
+  numFreeSlots = numBits;
+  availableSlotMap = new Bitmap(numSlots);
+  nextFree = 0;
+}
+
+RM_PageHdr::~RM_PageHdr() {
+    delete availableSlotMap;
+}
+
+RM_Record::RM_Record(const char* data,
+                     int length,
+                     const RID rid) {
+  this->rid = rid;
+  data_ = new char[length + 1];
+  memcpy(data_, data, length);
+  this->length = length;
 }
 
 RM_Record::~RM_Record() {
+  delete[] data_;
 }
 
 RC RM_Record::GetData(char *& pData) const {
+  if (data_ == NULL || length <= 0) {
+      return RM_NULLRECORD;
+  }
+  memcpy(pData, data_, length);
   return OK_RC;
 }
 
 RC RM_Record::GetRid(RID &rid) const {
+  rid = this->rid;
   return OK_RC;
 }
 
@@ -25,11 +76,25 @@ RM_Manager::RM_Manager(PF_Manager &pfm) {
 RM_Manager::~RM_Manager() {
 }
 
+// TODO(yye): more logic in CreateFile method.
 RC RM_Manager::CreateFile(const char *fileName, int recordSize) {
-  if (recordSize > PF_PAGE_SIZE || recordSize <= 0) {
+  if (recordSize >= PF_PAGE_SIZE - RM_HEADER_SIZE || recordSize <= 0) {
     return RM_PAGE_FILE_SIZE_EXCEED;
   }
-  return pf_manager_->CreateFile(fileName);
+  RC rc = pf_manager_->CreateFile(fileName);
+  if (rc != OK_RC) {
+    PF_PrintError(rc);
+    return rc;
+  }
+  PF_FileHandle fileHandle;
+  rc = pf_manager_->OpenFile(fileName, fileHandle);
+  if (rc != OK_RC) {
+    PF_PrintError(rc);
+    return rc;
+  }
+  PF_PageHandle headerPageHandler;
+  rc = fileHandle.AllocatePage(headerPageHandler);
+  return rc;
 }
 
 RC RM_Manager::DestroyFile(const char *fileName) {
@@ -39,14 +104,18 @@ RC RM_Manager::DestroyFile(const char *fileName) {
 RC RM_Manager::OpenFile(const char *fileName, RM_FileHandle &fileHandler) {
   PF_FileHandle pf_fileHandler;
   RC rc = pf_manager_->OpenFile(fileName, pf_fileHandler);
+  fileHandler.SetPFFileHandle(pf_fileHandler);
   return rc;
 }
 
 RC RM_Manager::CloseFile(RM_FileHandle &fileHandle) {
   if (fileHandle.GetHandleSet()) {
-    //    return manager_.CloseFile(fileHandle.GetPFHandle());
+    PF_FileHandle pfh;
+    if (OK_RC == fileHandle.GetPFHandle(pfh)) {
+      return pf_manager_->CloseFile(pfh);
+    }
   }
-  return END_RM_ERR;
+  return RM_FAILED_CLOSE_FILE;
 }
 
 // Following is the implementation of RM_FileHandle
@@ -62,6 +131,7 @@ RC RM_FileHandle::GetRec(const RID &rid, RM_Record &rec) const {
   if (!handle_set) {
     return RM_PAGE_FILE_HANDLE_CLOSED_WARN;
   }
+  return OK_RC;
 }
 
 RC RM_FileHandle::InsertRec(const char* pData, RID & rid) {
@@ -95,7 +165,7 @@ RC RM_FileHandle::ForcePages(PageNum pageNum) {
 }
 
 void RM_FileHandle::SetPFFileHandle(PF_FileHandle& handle) {
-  handle_ = &handle;
+  handle_ = handle;
   handle_set = true;
 }
 
@@ -107,6 +177,6 @@ RC RM_FileHandle::GetPFHandle(PF_FileHandle& handle) {
   if (!handle_set) {
     return RM_PAGE_FILE_HANDLE_CLOSED_WARN;
   }
-  handle_ = &handle;
+  handle = handle;
   return OK_RC;
 }
