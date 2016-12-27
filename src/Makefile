@@ -11,8 +11,7 @@
 CC             = g++
 BUILD_DIR      = ../build/
 LIB_DIR        = ../lib/
-JSON_LIB_DIR   = /usr/local/Cellar/jsoncpp/0.10.5/
-INC_DIRS       = -I. -I$(JSON_LIB_DIR)/include
+INC_DIRS       = -I.
 AR             = ar -qc
 RANLIB         = ranlib
 YACC           = bison -dy
@@ -70,7 +69,7 @@ UTILS          = $(UTILS_SOURCES:.cc=)
 TESTS          = $(TESTER_SOURCES:.cc=)
 EXECUTABLES    = $(UTILS) $(TESTS)
 
-LIBS           = -lparser -lql -lsm -lix -lrm -lpf -ljsoncpp
+LIBS           = -lparser -lql -lsm -lix -lrm -lpf
 
 #
 # Build targets
