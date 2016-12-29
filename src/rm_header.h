@@ -35,7 +35,8 @@ class RM_FileHeader {
 class RM_PageHeader {
  public:
   RM_PageHeader(unsigned int record_num);
-  vector<bool> bit_array;
+  int record_num;
+  char* bit_array;
   PageNum next_free;
   // This function is used to deserialize FileHeader from string to object.
   static RM_PageHeader BufToPageHeader(const char* header_content);

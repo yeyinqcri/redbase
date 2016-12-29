@@ -36,5 +36,5 @@ bool RM_PageHeader::IsAllFull() {
 }
 
 int RM_PageHeader::GetTotalRecordNum() {
-  return bit_array.size();
+  return record_num;
 }

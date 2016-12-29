@@ -75,6 +75,7 @@ class RM_FileHandle {
   bool handle_set;
   int record_num_per_page;
   PF_FileHandle handle_;
+  RC IsValid() const;
 };
 
 //
@@ -114,10 +115,16 @@ class Bitmap {
   Bitmap(int numBits);
   Bitmap(const char* buf, int numBits);
   ~Bitmap();
-
-  int getSize();
-  bool test(int bitNumber);
-  void set(int bitNumber, bool value);
+  // returns how many bits are in this bigmap.
+  int GetSize();
+  // returns how many bytes the bit array take.
+  int GetSizeInBytes();
+  // check whether the bit is set to 1 or not. 
+  bool Test(int bitNumber);
+  // set the value of the corresponding element in the array.
+  void Set(int bitNumber, bool value);
+  // returns the bitarray.
+  char*& GetBitArray();
  private:
   int size;
   char* bitArray;
@@ -133,6 +140,12 @@ class RM_PageHdr {
   int numSlots;
   int numFreeSlots;
 
+  // This method is used to calculate how many bytes we need in order to store
+  // this header object.
+  int size();
+  // Serializes this object into a char array.
+  void serialize(char* data);
+  static RM_PageHdr deserialize(char* data, int numSlots);
 };
 
 //

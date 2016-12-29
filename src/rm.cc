@@ -1,8 +1,13 @@
 #include "rm.h"
 #include "rm_error.h"
 #include <cstring>
+#include <math.h>
 
 using namespace std;
+
+namespace {
+  const int kBitsInByte = 8;
+}
 
 Bitmap::Bitmap(int numBits) {
   CHECK(numBits > 0);
@@ -15,11 +20,11 @@ Bitmap::~Bitmap() {
   delete[] bitArray;
 }
 
-bool Bitmap::test(int bitNumber) {
+bool Bitmap::Test(int bitNumber) {
   return ( (bitArray[bitNumber/sizeof(char)] & (1 << (bitNumber%sizeof(char)) )) != 0 );
 }
 
-void Bitmap::set(int bitNumber, bool value) {
+void Bitmap::Set(int bitNumber, bool value) {
   if (value) {
     bitArray[bitNumber/sizeof(char)] |= 1 << (bitNumber%sizeof(char));
   } else {
@@ -27,8 +32,16 @@ void Bitmap::set(int bitNumber, bool value) {
   }
 }
 
-int Bitmap::getSize() {
+int Bitmap::GetSize() {
   return size;
+}
+
+int Bitmap::GetSizeInBytes() {
+  return static_cast<int>(ceil(static_cast<float>(size)/kBitsInByte));
+}
+
+char*& Bitmap::GetBitArray() {
+  return this->bitArray;
 }
 
 RM_PageHdr::RM_PageHdr(int numBits) {
@@ -40,6 +53,46 @@ RM_PageHdr::RM_PageHdr(int numBits) {
 
 RM_PageHdr::~RM_PageHdr() {
     delete availableSlotMap;
+}
+
+int RM_PageHdr::size() {
+  int total_size =
+  // numslots size.
+  sizeof(int) + 
+  // numFreeslots size.
+  sizeof(int) +
+  // nextFree size.
+  sizeof(int) +
+  // bitmap size.
+  this->availableSlotMap->GetSizeInBytes();
+  return total_size;
+}
+
+void RM_PageHdr::serialize(char* data) {
+  int cursor = 0;
+  memcpy(data + cursor, &numSlots, sizeof(numSlots));
+  cursor += sizeof(numSlots);
+  memcpy(data + cursor, &numFreeSlots, sizeof(numFreeSlots));
+  cursor += sizeof(numFreeSlots);
+  memcpy(data + cursor, &nextFree, sizeof(nextFree));
+  cursor += sizeof(nextFree);
+  memcpy(data + cursor,
+         this->availableSlotMap->GetBitArray(),
+         this->availableSlotMap->GetSizeInBytes());
+}
+
+RM_PageHdr RM_PageHdr::deserialize(char* data, int numSlots) {
+  RM_PageHdr hdr(numSlots);
+  int cursor = 0;
+  memcpy(&hdr.numSlots, data, sizeof(hdr.numSlots));
+  cursor += sizeof(hdr.numSlots);
+  memcpy(&hdr.numFreeSlots, data + cursor, sizeof(hdr.numFreeSlots));
+  cursor += sizeof(hdr.numFreeSlots);
+  memcpy(&hdr.nextFree, data + cursor, sizeof(hdr.nextFree));
+  cursor += sizeof(hdr.nextFree);
+  memcpy(hdr.availableSlotMap->GetBitArray(), data + cursor,
+         hdr.availableSlotMap->GetSizeInBytes());
+  return hdr;
 }
 
 RM_Record::RM_Record(const char* data,
@@ -118,65 +171,4 @@ RC RM_Manager::CloseFile(RM_FileHandle &fileHandle) {
   return RM_FAILED_CLOSE_FILE;
 }
 
-// Following is the implementation of RM_FileHandle
-RM_FileHandle::RM_FileHandle() {
-  handle_set = false;
-}
 
-RM_FileHandle::~RM_FileHandle() {
-
-}
-
-RC RM_FileHandle::GetRec(const RID &rid, RM_Record &rec) const {
-  if (!handle_set) {
-    return RM_PAGE_FILE_HANDLE_CLOSED_WARN;
-  }
-  return OK_RC;
-}
-
-RC RM_FileHandle::InsertRec(const char* pData, RID & rid) {
-  if (!handle_set) {
-    return RM_PAGE_FILE_HANDLE_CLOSED_WARN;
-  }
-
-  return OK_RC;
-}
-
-RC RM_FileHandle::DeleteRec(const RID &rid) {
-  if (!handle_set) {
-    return RM_PAGE_FILE_HANDLE_CLOSED_WARN;
-  }
-
-  return OK_RC;
-}
-
-RC RM_FileHandle::UpdateRec(const RM_Record &rec) {
-  if (!handle_set) {
-    return RM_PAGE_FILE_HANDLE_CLOSED_WARN;
-  }
-  return OK_RC;
-}
-
-RC RM_FileHandle::ForcePages(PageNum pageNum) {
-  if (!handle_set) {
-    return RM_PAGE_FILE_HANDLE_CLOSED_WARN;
-  }
-  return OK_RC;
-}
-
-void RM_FileHandle::SetPFFileHandle(PF_FileHandle& handle) {
-  handle_ = handle;
-  handle_set = true;
-}
-
-bool RM_FileHandle::GetHandleSet() {
-  return handle_set;
-}
-
-RC RM_FileHandle::GetPFHandle(PF_FileHandle& handle) {
-  if (!handle_set) {
-    return RM_PAGE_FILE_HANDLE_CLOSED_WARN;
-  }
-  handle = handle;
-  return OK_RC;
-}
