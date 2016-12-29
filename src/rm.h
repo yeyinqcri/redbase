@@ -34,7 +34,7 @@ const int RM_HEADER_SIZE = 1024;
 //
 class RM_Record {
  public:
-  RM_Record(const char* data, int length, const RID rid);
+  RM_Record();
   ~RM_Record();
 
   // Return the data corresponding to the record.  Sets *pData to the
@@ -43,6 +43,9 @@ class RM_Record {
 
   // Return the RID associated with the record
   RC GetRid(RID &rid) const;
+
+  // Set the properties inside the class.
+  void Set(const char* data, const int record_szie, const RID rid);
  private:
   char* data_;
   int length;
@@ -73,7 +76,10 @@ class RM_FileHandle {
   RC GetPFHandle(PF_FileHandle& handle);
  private:
   bool handle_set;
+  // The number of records each page stores.
   int record_num_per_page;
+  // The nubmer of byte each record uses.
+  int record_size;
   PF_FileHandle handle_;
   RC IsValid() const;
 };

@@ -25,6 +25,13 @@ RC RM_FileHandle::GetRec(const RID &rid, RM_Record &rec) const {
   handle_.GetThisPage(page_num, page_handler);
   char* page_data;
   page_handler.GetData(page_data);
+  RM_PageHdr page_hdr =
+    RM_PageHdr::deserialize(page_data, this->record_num_per_page);
+  if (!page_hdr.availableSlotMap->Test(slot_num)) {
+    return RM_ERASED_RECORD;
+  }
+  const char* record = page_data + page_hdr.size() + slot_num * record_size;
+  rec.Set(record, record_size, rid);
 //  page_data =  new RM_PageHdr() 
   return OK_RC;
 }

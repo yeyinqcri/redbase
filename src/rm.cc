@@ -95,13 +95,14 @@ RM_PageHdr RM_PageHdr::deserialize(char* data, int numSlots) {
   return hdr;
 }
 
-RM_Record::RM_Record(const char* data,
-                     int length,
-                     const RID rid) {
+RM_Record::RM_Record() {
+}
+
+void RM_Record::Set(const char* data, const int record_size, const RID rid) {
   this->rid = rid;
-  data_ = new char[length + 1];
-  memcpy(data_, data, length);
-  this->length = length;
+  data_ = new char[record_size];
+  memcpy(data_, data, record_size);
+  this->length = record_size;
 }
 
 RM_Record::~RM_Record() {
