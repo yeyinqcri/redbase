@@ -183,11 +183,9 @@ RC RM_Manager::OpenFile(const char *fileName, RM_FileHandle &fileHandler) {
 }
 
 RC RM_Manager::CloseFile(RM_FileHandle &fileHandle) {
-  if (fileHandle.GetHandleSet()) {
-    PF_FileHandle pfh;
-    if (OK_RC == fileHandle.GetPFHandle(pfh)) {
-      return pf_manager_->CloseFile(pfh);
-    }
+  PF_FileHandle pfh;
+  if (OK_RC == fileHandle.GetPFHandle(pfh)) {
+    return pf_manager_->CloseFile(pfh);
   }
   return RM_FAILED_CLOSE_FILE;
 }

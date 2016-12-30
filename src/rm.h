@@ -84,19 +84,15 @@ class RM_FileHandle {
   // from the buffer pool to disk.  Default value forces all pages.
   RC ForcePages(PageNum pageNum = ALL_PAGES);
   void SetPFFileHandle(PF_FileHandle& handle);
-  bool GetHandleSet();
   RC GetPFHandle(PF_FileHandle& handle);
  private:
   bool handle_set;
-  // The number of records each page stores.
-  int record_num_per_page;
-  // The nubmer of byte each record uses.
-  int record_size;
-  // The metadata of the file.
+  
   RM_FileHdr file_header_;
 
   PF_FileHandle handle_;
   RC IsValid() const;
+  RC UpdateNextFreeSlot(const PageNum page_num);
 };
 
 //
