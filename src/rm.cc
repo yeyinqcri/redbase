@@ -44,6 +44,26 @@ char*& Bitmap::GetBitArray() {
   return this->bitArray;
 }
 
+void RM_FileHdr::serialize(char* data) {
+  int cursor = 0;
+  memcpy(data + cursor, &record_num_per_page, sizeof(record_num_per_page));
+  cursor += sizeof(record_num_per_page);
+  memcpy(data + cursor, &record_size, sizeof(record_size));
+  cursor += sizeof(record_size);
+  memcpy(data + cursor, &first_free_page_num, sizeof(first_free_page_num));
+}
+
+RM_FileHdr RM_FileHdr::deserialize(char* data) {
+  RM_FileHdr hdr;
+  int cursor = 0;
+  memcpy(&hdr.record_num_per_page, data + cursor, sizeof(hdr.record_num_per_page));
+  cursor += sizeof(hdr.record_num_per_page);
+  memcpy(&hdr.record_size, data + cursor, sizeof(hdr.record_size));
+  cursor += sizeof(hdr.record_size);
+  memcpy(&hdr.first_free_page_num, data + cursor, sizeof(hdr.first_free_page_num));
+  return hdr;
+}
+
 RM_PageHdr::RM_PageHdr(int numBits) {
   numSlots = numBits;
   numFreeSlots = numBits;

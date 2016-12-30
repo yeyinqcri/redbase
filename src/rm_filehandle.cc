@@ -1,4 +1,5 @@
 #include "rm.h"
+#include "rm_error.h"
 #include "rm_rid.h"
 
 // Following is the implementation of RM_FileHandle
@@ -37,10 +38,29 @@ RC RM_FileHandle::GetRec(const RID &rid, RM_Record &rec) const {
 }
 
 RC RM_FileHandle::InsertRec(const char* pData, RID & rid) {
-  if (!handle_set) {
-    return RM_PAGE_FILE_HANDLE_CLOSED_WARN;
+  RC ret_value;
+  ret_value = this->IsValid();
+  if (ret_value != OK_RC) {
+    return ret_value;
   }
-
+  PF_PageHandle page_handler;
+  handle_.GetThisPage(0, page_handler);
+  char* page_data;
+  page_handler.GetData(page_data);
+  RM_PageHdr page_hdr =
+    RM_PageHdr::deserialize(page_data, this->record_num_per_page);
+  int index = -1;
+  for (int i = 0; i < this->record_num_per_page; i++) {
+    if (page_hdr.availableSlotMap->Test(i)) {
+      index = i;
+      break;
+    }
+  }
+  // Cannot find empty slot.
+  if (index < 0) {
+    return RM_FULL_PAGE;
+  }
+ // handle_.
   return OK_RC;
 }
 

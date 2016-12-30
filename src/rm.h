@@ -52,6 +52,18 @@ class RM_Record {
   RID rid;
 };
 
+// The metadata of the file, including:
+// The page number of the first free page.
+//
+class RM_FileHdr {
+  public:
+    void serialize(char* data);
+    static RM_FileHdr deserialize(char* data);
+    int record_num_per_page;
+    int record_size;
+    int first_free_page_num;
+};
+
 //
 // RM_FileHandle: RM File interface
 //
@@ -80,6 +92,9 @@ class RM_FileHandle {
   int record_num_per_page;
   // The nubmer of byte each record uses.
   int record_size;
+  // The metadata of the file.
+  RM_FileHdr file_header_;
+
   PF_FileHandle handle_;
   RC IsValid() const;
 };
