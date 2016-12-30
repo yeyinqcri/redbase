@@ -61,7 +61,7 @@ class RM_FileHdr {
     static RM_FileHdr deserialize(char* data);
     int record_num_per_page;
     int record_size;
-    int first_free_page_num;
+    PageNum first_free_page_num;
 };
 
 //
