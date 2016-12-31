@@ -51,6 +51,8 @@ void RM_FileHdr::serialize(char* data) {
   memcpy(data + cursor, &record_size, sizeof(record_size));
   cursor += sizeof(record_size);
   memcpy(data + cursor, &first_free_page_num, sizeof(first_free_page_num));
+  cursor += sizeof(first_free_page_num);
+  memcpy(data + cursor, &last_page_num, sizeof(last_page_num));
 }
 
 RM_FileHdr RM_FileHdr::deserialize(char* data) {
@@ -61,6 +63,8 @@ RM_FileHdr RM_FileHdr::deserialize(char* data) {
   memcpy(&hdr.record_size, data + cursor, sizeof(hdr.record_size));
   cursor += sizeof(hdr.record_size);
   memcpy(&hdr.first_free_page_num, data + cursor, sizeof(hdr.first_free_page_num));
+  cursor += sizeof(hdr.first_free_page_num);
+  memcpy(&hdr.last_page_num, data + cursor, sizeof(hdr.last_page_num));
   return hdr;
 }
 
@@ -175,6 +179,7 @@ RC RM_Manager::CreateFile(const char *fileName, int recordSize) {
   file_header.first_free_page_num = kInvalidPageNum; 
   file_header.record_num_per_page =
     (PF_PAGE_SIZE - page_hdr.size()) / recordSize;
+  file_header.last_page_num = 0;
   file_header.serialize(head_data);
   fileHandle.MarkDirty(HEADER_PAGE_NUM);
   return OK_RC;

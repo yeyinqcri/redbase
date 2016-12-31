@@ -60,6 +60,7 @@ class RM_FileHdr {
     static RM_FileHdr deserialize(char* data);
     int record_num_per_page;
     int record_size;
+    PageNum last_page_num;
     PageNum first_free_page_num;
 };
 
@@ -84,11 +85,13 @@ class RM_FileHandle {
   RC ForcePages(PageNum pageNum = ALL_PAGES);
   void SetPFFileHandle(PF_FileHandle& handle);
   RC GetPFHandle(PF_FileHandle& handle);
+
+  // Copy Assignment.
+  RM_FileHandle& operator=(const RM_FileHandle & fileHandle); 
+ 
  private:
   bool handle_set;
-  
   RM_FileHdr file_header_;
-
   PF_FileHandle handle_;
   RC IsValid() const;
   RC UpdateNextFreeSlot(const PageNum page_num);
@@ -107,6 +110,16 @@ class RM_FileScan {
               ClientHint pinHint = NO_HINT);  // Initialize a file scan
   RC GetNextRec(RM_Record &rec);               // Get next matching record
   RC CloseScan();                             // Close the scan
+ private:
+  RM_FileHandle handle_;
+  AttrType type_;
+  int attr_length_;
+  int attr_offset_;
+  CompOp comp_op_;
+  void* value_;
+  PageNum curr_page_num_;
+  SlotNum curr_slot_num_;
+  bool opened_;
 };
 
 //

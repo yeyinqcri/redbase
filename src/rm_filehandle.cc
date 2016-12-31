@@ -13,6 +13,18 @@ RM_FileHandle::~RM_FileHandle() {
 
 }
 
+RM_FileHandle& RM_FileHandle::operator=(const RM_FileHandle &fileHandle) {
+  // Test for self-assignment
+  if (this != &fileHandle) {
+    this->file_header_ = fileHandle.file_header_;
+    this->handle_ = fileHandle.handle_;
+    this->handle_set = fileHandle.handle_set;
+  }
+
+  // Return a reference to this
+  return (*this);
+}
+
 RC RM_FileHandle::GetRec(const RID &rid, RM_Record &rec) const {
   RC ret_value;
   ret_value = this->IsValid();
@@ -52,6 +64,7 @@ RC RM_FileHandle::InsertRec(const char* pData, RID & rid) {
   if (file_header_.first_free_page_num == kInvalidPageNum) {
     handle_.AllocatePage(page_handler);
     page_handler.GetPageNum(file_header_.first_free_page_num);
+    page_handler.GetPageNum(file_header_.last_page_num);
     is_head_dirty = true;
   }
   PageNum curr_page_num = file_header_.first_free_page_num;
@@ -143,7 +156,7 @@ RC RM_FileHandle::DeleteRec(const RID &rid) {
   page_hdr.availableSlotMap->Set(slot_num, 1);
   // Updates the number of free slot.
   if (page_hdr.numFreeSlots == 0) {
-    if (ret_value = UpdateNextFreeSlot(page_num)) {
+    if ((ret_value = UpdateNextFreeSlot(page_num))) {
       return ret_value;
     }
   }
