@@ -24,10 +24,9 @@
 
 #define RM_PAGE_FILE_HANDLE_CLOSED_WARN (START_RM_WARN + 1)
 #define RM_PAGE_FILE_SIZE_EXCEED (START_RM_WARN + 2)
-
 #define RM_FAILED_CLOSE_FILE (START_RM_ERR - 1)
 
-const int RM_HEADER_SIZE = 1024;
+#define HEADER_PAGE_NUM 0
 
 //
 // RM_Record: RM Record interface

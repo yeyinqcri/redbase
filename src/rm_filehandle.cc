@@ -48,6 +48,7 @@ RC RM_FileHandle::InsertRec(const char* pData, RID & rid) {
   }
   PF_PageHandle page_handler;
   bool is_head_dirty = false;
+  // If there is no free page in the file, create a new page for the insertion.
   if (file_header_.first_free_page_num == kInvalidPageNum) {
     handle_.AllocatePage(page_handler);
     page_handler.GetPageNum(file_header_.first_free_page_num);
@@ -92,7 +93,7 @@ RC RM_FileHandle::InsertRec(const char* pData, RID & rid) {
     char* first_page_data;
     first_page_handler.GetData(first_page_data);
     file_header_.serialize(first_page_data);
-    handle_.MarkDirty(0);
+    handle_.MarkDirty(HEADER_PAGE_NUM);
   }
   return OK_RC;
 }
@@ -106,7 +107,7 @@ RC RM_FileHandle::UpdateNextFreeSlot(const PageNum page_num) {
   page_handler.GetData(header_data);
   file_header_.first_free_page_num = page_num;
   file_header_.serialize(header_data);
-  handle_.MarkDirty(0);
+  handle_.MarkDirty(HEADER_PAGE_NUM);
   // Updates the header of the page;
   char* page_data;
   handle_.GetThisPage(page_num, page_handler);

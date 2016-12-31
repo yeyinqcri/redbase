@@ -150,9 +150,9 @@ RM_Manager::RM_Manager(PF_Manager &pfm) {
 RM_Manager::~RM_Manager() {
 }
 
-// TODO(yye): more logic in CreateFile method.
 RC RM_Manager::CreateFile(const char *fileName, int recordSize) {
-  if (recordSize >= PF_PAGE_SIZE - RM_HEADER_SIZE || recordSize <= 0) {
+  RM_PageHdr page_hdr(recordSize);
+  if (recordSize >= PF_PAGE_SIZE - page_hdr.size() || recordSize <= 0) {
     return RM_PAGE_FILE_SIZE_EXCEED;
   }
   RC rc = pf_manager_->CreateFile(fileName);
@@ -168,7 +168,16 @@ RC RM_Manager::CreateFile(const char *fileName, int recordSize) {
   }
   PF_PageHandle headerPageHandler;
   rc = fileHandle.AllocatePage(headerPageHandler);
-  return rc;
+  char* head_data;
+  headerPageHandler.GetData(head_data);
+  RM_FileHdr file_header;
+  file_header.record_size = recordSize;
+  file_header.first_free_page_num = kInvalidPageNum; 
+  file_header.record_num_per_page =
+    (PF_PAGE_SIZE - page_hdr.size()) / recordSize;
+  file_header.serialize(head_data);
+  fileHandle.MarkDirty(HEADER_PAGE_NUM);
+  return OK_RC;
 }
 
 RC RM_Manager::DestroyFile(const char *fileName) {
@@ -187,6 +196,8 @@ RC RM_Manager::CloseFile(RM_FileHandle &fileHandle) {
   if (OK_RC == fileHandle.GetPFHandle(pfh)) {
     return pf_manager_->CloseFile(pfh);
   }
+  // Forces to write all the page content back to disk.
+  fileHandle.ForcePages(ALL_PAGES);
   return RM_FAILED_CLOSE_FILE;
 }
 
