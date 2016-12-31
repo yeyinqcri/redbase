@@ -69,6 +69,7 @@ class RM_FileHdr {
 //
 class RM_FileHandle {
  public:
+  friend class RM_FileScan;
   RM_FileHandle();
   ~RM_FileHandle();
 
@@ -117,9 +118,13 @@ class RM_FileScan {
   int attr_offset_;
   CompOp comp_op_;
   void* value_;
+  ClientHint hint_;
   PageNum curr_page_num_;
   SlotNum curr_slot_num_;
   bool opened_;
+  bool CompInt(void* target);
+  bool CompFloat(void* target);
+  bool CompString(void* target);
 };
 
 //
