@@ -6,51 +6,57 @@
  *      Author: yye
  *
  */
-#include "rm_header.h"
+#include "rm.h"
 
+#include <cassert>
 #include <iostream>
 #include <vector>
 using namespace std;
 
 void TestRMFileHeader_Serialization() {
-  RM_FileHeader header;
-  header.first_free = 1;
-  header.number_records_per_page = 10;
+  RM_FileHdr header;
+  header.first_free_page_num = 1;
+  header.record_num_per_page = 10;
   header.record_size = 100;
   char result[100];
-  header.ToBuf(result, 100);
-  cout << result << endl;
+  header.serialize(result);
 }
 
 void TestRMPageHeader_Serialization() {
-  RM_PageHeader header(10);
-  header.SetBusy(0);
-  header.SetBusy(5);
+  RM_PageHdr header(10);
+  header.nextFree = 0;
+  header.numSlots = 0;
+  header.numFreeSlots = 0;
   char result[100];
-  memset(result, 0, sizeof(char) * 100);
-  header.ToBuf(result, 100);
-  cout << result << endl;
+  header.serialize(result);
 }
 
 void TestRMFileHeader_DeSerialization() {
-  char str[] =
-      "{\"firstfree\":1,\"number_records_per_page\":10,\"recordsize\":100}";
-  RM_FileHeader header = RM_FileHeader::BufToFileHeader(str);
-  cout << "header.firstfree:" << header.first_free << endl;
-  cout << "header.number_records_per_page:" << header.number_records_per_page
-       << endl;
-  cout << "header.recordsize:" << header.record_size << endl;
+  RM_FileHdr header;
+  header.first_free_page_num = 1;
+  header.record_num_per_page = 10;
+  header.record_size = 100;
+  char result[100];
+  header.serialize(result);
+  RM_FileHdr deserialized_hdr = RM_FileHdr::deserialize(result);
+  assert(deserialized_hdr.first_free_page_num == header.first_free_page_num);
+  assert(deserialized_hdr.record_num_per_page == header.record_num_per_page);
+  assert(deserialized_hdr.record_size == header.record_size);
+  cout << "FILEHEADER_DESERIALIZATION TESTED!" << endl;
 }
 
 void TestRMPageHeader_DeSerialization() {
-  char str[] = "{\"bit_array\":[1,0,0,0,0,1,0,0,0,0],\"next_free\":2}";
-  RM_PageHeader header = RM_PageHeader::BufToPageHeader(str);
-  cout << "header.bit_array" << endl;
-  for (int i = 0; i < header.bit_array.size(); i++) {
-    cout << header.bit_array[i] << ",";
-  }
-  cout << endl;
-  cout << "header.next_free" << header.next_free << endl;
+  RM_PageHdr header(10);
+  header.nextFree = 3;
+  header.numSlots = 30;
+  header.numFreeSlots = 300;
+  char result[100];
+  header.serialize(result);
+  RM_PageHdr deserialized_hdr = RM_PageHdr::deserialize(result, 10);
+  assert(deserialized_hdr.nextFree == header.nextFree);
+  assert(deserialized_hdr.numSlots == header.numSlots);
+  assert(deserialized_hdr.numFreeSlots == header.numFreeSlots);
+  cout << "RMPAGEHEADER_DESERIALIZATION TESTED!" << endl;
 }
 
 int main() {

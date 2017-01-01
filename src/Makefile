@@ -36,7 +36,7 @@ STATS_OPTION   = -DPF_STATS
 PF_SOURCES     = pf_buffermgr.cc pf_error.cc pf_filehandle.cc \
                  pf_pagehandle.cc pf_hashtable.cc pf_manager.cc \
                  pf_statistics.cc statistics.cc
-RM_SOURCES     = comparator.cc rm_header.cc rm_rid.cc rm.cc rm_filehandle.cc rm_filescan.cc statistics.cc
+RM_SOURCES     = comparator.cc rm_rid.cc rm.cc rm_filehandle.cc rm_filescan.cc statistics.cc
 IX_SOURCES     = statistics.cc
 SM_SOURCES     = statistics.cc #sm_stub.cc printer.cc
 QL_SOURCES     = statistics.cc #ql_manager_stub.cc
@@ -143,5 +143,5 @@ $(OBJECTS): %.o:
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(EXECUTABLES): %: $(BUILD_DIR)%.o $(LIBRARIES)
-	$(CC) $(CFLAGS) $< -o $@ -L$(LIB_DIR) -L$(JSON_LIB_DIR)/lib $(LIBS)
+	$(CC) $(CFLAGS) $< -o $@ -L$(LIB_DIR)  $(LIBS)
 
